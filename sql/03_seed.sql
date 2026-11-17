@@ -91,7 +91,8 @@ WITH base AS (
     SELECT b.*,
            DATE '2026-11-16' - d_ouv AS age,
            CASE
-               WHEN DATE '2026-11-16' - d_ouv > 90 THEN CASE WHEN r_statut < .95 THEN 'clos' ELSE 'en_cours' END
+               WHEN DATE '2026-11-16' - d_ouv > 180 THEN 'clos'
+               WHEN DATE '2026-11-16' - d_ouv > 90 THEN CASE WHEN r_statut < .90 THEN 'clos' ELSE 'en_cours' END
                WHEN DATE '2026-11-16' - d_ouv > 30 THEN CASE WHEN r_statut < .60 THEN 'clos' WHEN r_statut < .90 THEN 'en_cours' ELSE 'ouvert' END
                ELSE CASE WHEN r_statut < .15 THEN 'clos' WHEN r_statut < .60 THEN 'en_cours' ELSE 'ouvert' END
            END::statut_dossier AS statut

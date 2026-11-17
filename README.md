@@ -2,6 +2,8 @@
 
 Projet **Bases de données / SQL** réalisé par [Fatou Sarr](https://sarr-fatou.github.io/) (Master 1 MIAGE — Data, IA & Big Data).
 
+**📊 Tableau de bord en ligne : https://sarr-fatou.github.io/ged-sql/**
+
 Pendant mon stage en *Data Management & Transformation numérique*, j'ai étudié la mise en place d'une GED pour améliorer la **qualité**, la **traçabilité** et l'**accessibilité** des données administratives. Ce projet modélise une GED de ce type de A à Z dans **PostgreSQL** : modèle conceptuel (MERISE), schéma, règles métier, traçabilité automatique, vues de pilotage, requêtes d'analyse et tests.
 
 > ⚠️ Toutes les données sont **fictives** et générées par script. Aucune donnée réelle n'est utilisée.
@@ -104,10 +106,11 @@ erDiagram
 |---|---|
 | [`sql/01_schema.sql`](sql/01_schema.sql) | Tables, types énumérés, contraintes (`CHECK`, `UNIQUE`, clés étrangères), index |
 | [`sql/02_triggers.sql`](sql/02_triggers.sql) | Fonctions PL/pgSQL et déclencheurs : journal d'audit, protection des archives, contrôle de clôture |
-| [`sql/03_seed.sql`](sql/03_seed.sql) | Génération reproductible de données fictives : 6 services, 24 agents, 500 usagers, 900 dossiers, ~3 700 documents, ~17 700 événements d'historique |
+| [`sql/03_seed.sql`](sql/03_seed.sql) | Génération reproductible de données fictives : 6 services, 24 agents, 500 usagers, 900 dossiers, ~3 700 documents, ~18 000 événements d'historique |
 | [`sql/04_views.sql`](sql/04_views.sql) | Vues de pilotage, réutilisables dans un outil de BI (Power BI, Tableau) |
 | [`sql/05_analyses.sql`](sql/05_analyses.sql) | 11 requêtes d'analyse : CTE, fonctions de fenêtre (`SUM OVER`, `RANK`, `LAG`), `percentile_cont`, `FILTER`, `LATERAL`, recherche plein texte |
 | [`sql/06_tests.sql`](sql/06_tests.sql) | 8 tests automatiques des règles métier, dans une transaction annulée |
+| [`sql/07_export_dashboard.sql`](sql/07_export_dashboard.sql) | Export JSON des indicateurs pour le [tableau de bord web](docs/index.html) |
 | [`.github/workflows/tests.yml`](.github/workflows/tests.yml) | Intégration continue : la base est recréée et testée à chaque modification |
 
 ## Exemples de résultats
@@ -116,10 +119,10 @@ erDiagram
 
 | Service | Dossiers actifs | Complets | Taux de complétude |
 |---|---|---|---|
-| Passeports et titres | 32 | 3 | 9,4 % |
-| Affaires sociales | 16 | 3 | 18,8 % |
-| État civil | 20 | 5 | 25,0 % |
-| Visas | 12 | 3 | 25,0 % |
+| Passeports et titres | 22 | 2 | 9,1 % |
+| Affaires sociales | 14 | 3 | 21,4 % |
+| État civil | 9 | 2 | 22,2 % |
+| Visas | 7 | 2 | 28,6 % |
 
 → Les dossiers de passeports sont les plus souvent incomplets : c'est le service qui exige le plus de pièces (4).
 
@@ -127,8 +130,8 @@ erDiagram
 
 | Contrôle | Anomalies |
 |---|---|
-| Documents sans mot-clé | 910 |
-| Brouillons de plus de 30 jours | 82 |
+| Documents sans mot-clé | 911 |
+| Brouillons de plus de 30 jours | 35 |
 | Fichiers en double (même empreinte) | 0 |
 | Dossiers clos avec pièces manquantes | 0 |
 
@@ -151,6 +154,7 @@ Prérequis : PostgreSQL 14 ou plus récent.
 
 ```bash
 ./run.sh     # crée la base "ged_demo", charge les données, lance les analyses et les tests
+psql -At -d ged_demo -f sql/07_export_dashboard.sql | grep -v '^SET$' > docs/data/dashboard.json   # met à jour le tableau de bord
 psql ged_demo -c "SET search_path TO ged; SELECT * FROM v_tableau_bord_service;"
 ```
 
